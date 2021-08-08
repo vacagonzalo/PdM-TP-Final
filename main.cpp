@@ -25,15 +25,12 @@ int main()
     char buffer[11];
     while (true) {
         pc.gets(buffer, 11);
-        pc.printf("msg: %s\n",buffer);
-        pc.printf("msg crc: 0x%X\n", (unsigned int)buffer[9]);
         unsigned int payload[9];
         for(int i = 0; i < 9; i++)
         {
             payload[i] = (unsigned int)buffer[i];
         }
         unsigned char computedCRC = buildCRC8(&crc, payload,9);
-        pc.printf("computed crc: 0x%X\n", computedCRC);
+        pc.printf("msg: %s | msg crc: 0x%X | cal crc: 0x%X\n", buffer, (unsigned int)buffer[9], computedCRC);
     }
 }
-
