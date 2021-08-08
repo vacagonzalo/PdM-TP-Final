@@ -1,0 +1,225 @@
+\documentclass[
+12pt,
+spanish,
+singlespacing,
+parskip,
+headsepline]{article}
+\usepackage[spanish]{babel}
+\usepackage{palatino}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{listings}
+\lstset
+{ %Formatting for code in appendix
+	language=Python,
+	basicstyle=\footnotesize,
+	numbers=left,
+	stepnumber=1,
+	showstringspaces=false,
+	tabsize=4,
+	breaklines=true,
+	breakatwhitespace=false,
+}
+\title{Algoritmo de Sarwate}
+\author{Gonzalo Nahuel Vaca}
+
+\begin{document}
+	
+\maketitle
+
+\section{Introducción}
+\label{sec:intro}
+
+El algoritmo de Sarwate permite realizar el cálculo de redundancia cíclica (CRC) operando byte a byte.
+Esto es una mejora frente al método tradicional de realizar una división contra un polinomio que obliga a analizar un bit por ciclo de máquina.
+
+Para este trabajo se propone realizar un CRC de 8 bits.
+
+\subsection{Plataforma de desarrollo}
+\label{sub:plataforma}
+
+Se utilizará la placa \emph{NUCLEO-F429ZI} y el RTOS \emph{Mbed}.
+
+\section{Máquina de estados finitos}
+\label{sec:mef}
+
+Se plantea una solución como una máquina de estados finitos de tipo \emph{Mealy}.
+En el cuadro \ref{tab:estados} se puede observar la representación de las transiciones entre los 256 estados.
+
+\begin{table}[!htbp] \centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+$S_{actual} \backslash S_{siguiente}$ & $S_1$             & $S_2$             & $\cdots$ & $S_{256}$               \\ \hline
+$S_1$                                 & $I_{1,1} / O_1$   & $I_{1,2} / O_2$   & $\cdots$ & $I_{1,256} / O_{256}$   \\ \hline
+$S_2$                                 & $I_{2,1} / O_1$   & $I_{2,2} / O_2$   & $\cdots$ & $I_{2,256} / O_{256}$   \\ \hline
+$\vdots$                              & $\vdots$          & $\vdots$          & $\ddots$ & $\vdots$                \\ \hline
+$S_{256}$                             & $I_{256,1} / O_1$ & $I_{256,2} / O_2$ & $\cdots$ & $I_{256,256} / O_{256}$ \\ \hline
+\end{tabular}
+\caption{transición de estados}
+\label{tab:estados}
+\end{table}
+
+Los estados se expresan como $S_n$, las entradas como $I_{i,j}$ y las salidas $O_{n}$.
+El estado inicial es $S_1$ con una salida $O_1$ que en todo caso será igual a cero.
+
+\section{Funcionamiento}
+\label{sec:func}
+
+El algoritmo funciona de la siguiente manera:
+
+\begin{enumerate}
+	\item Se crea una tabla con los 256 resultados posibles de la división polinómica.
+	\item Se comienza cargando como salida el primer elemento de la tabla.
+	\item Se realiza una operación \emph{XOR} con la salida actual y el primer byte de la secuencia.
+	\item El resultado de la operación el es índice (estado) de la tabla que tiene el valor de la nueva salida.
+	\item Se opera hasta finalizar los datos a verificar.
+	\item La última salida obtenida es el CRC del paquete.
+	\item El CRC calculado debe coincidir con el CRC transmitido.
+\end{enumerate}
+
+\section{Codificación}
+\label{sec:cod}
+
+\subsection{Obtención de tabla}
+\label{sub:tabla}
+
+Se decidió de manera arbitraria usar el siguiente polinomio: 
+
+$$0x^{7} + 0x^{6} + 0x^{5} + x^{4} + x^{3} + x^{2} + 0x^{1} + 0x $$
+
+Simplificado: 
+
+$$x^{4} + x^{3} + x^{2}$$
+
+Si solo tomamos los coeficientes, obtenemos el número hexadecimal $1C$.
+
+Como se mencionó en la sección \ref{sec:intro}, la tabla guarda los resultados de la división del polinomio con los 256 valores posibles de un byte.
+Se muestra el siguiente código para lograrlo: 
+
+\begin{lstlisting}[language=Python]
+POLYNOMIAL = 0x1C
+
+def buildTable(poly=POLYNOMIAL) -> list:
+	length = 256
+	polynomial = poly
+	mask = 0xFF
+	table = [0] * length
+	for i in range(length):
+		crc = i
+		for _ in range(8):
+			if(crc & 0x80):
+			crc = (crc << 1) ^ polynomial
+			else:
+			crc = crc << 1
+		table[i] = (crc & mask)
+	return table
+\end{lstlisting}
+
+Se arroja la siguiente tabla de valores:
+
+\begin{lstlisting}[language=Python]
+TABLE = [
+	0, 28, 56, 36, 112, 108, 72, 84, 224, 252, 216, 196, 144, 140, 168, 180, 220,
+	192, 228, 248, 172, 176, 148, 136, 60, 32, 4, 24, 76, 80, 116, 104, 164,
+	184, 156, 128, 212, 200, 236, 240, 68, 88, 124, 96, 52, 40, 12, 16, 120,
+	100, 64, 92, 8, 20, 48, 44, 152, 132, 160, 188, 232, 244, 208, 204, 84,
+	72, 108, 112, 36, 56, 28, 0, 180, 168, 140, 144, 196, 216, 252, 224, 136,
+	148, 176, 172, 248, 228, 192, 220, 104, 116, 80, 76, 24, 4, 32, 60, 240, 236,
+	200, 212, 128, 156, 184, 164, 16, 12, 40, 52, 96, 124, 88, 68, 44, 48, 20, 8,
+	92, 64, 100, 120, 204, 208, 244, 232, 188, 160, 132, 152, 168, 180, 144, 140,
+	216, 196, 224, 252, 72, 84, 112, 108, 56, 36, 0, 28, 116, 104, 76, 80, 4, 24,
+	60, 32, 148, 136, 172, 176, 228, 248, 220, 192, 12, 16, 52, 40, 124, 96, 68, 88,
+	236, 240, 212, 200, 156, 128, 164, 184, 208, 204, 232, 244, 160, 188, 152, 132,
+	48, 44, 8, 20, 64, 92, 120, 100, 252, 224, 196, 216, 140, 144, 180, 168, 28, 0,
+	36, 56, 108, 112, 84, 72, 32, 60, 24, 4, 80, 76, 104, 116, 192, 220, 248, 228,
+	176, 172, 136, 148, 88, 68, 96, 124, 40, 52, 16, 12, 184, 164, 128, 156, 200, 212,
+	240, 236, 132, 152, 188, 160, 244, 232, 204, 208, 100, 120, 92, 64, 20, 8, 44, 48
+]
+\end{lstlisting}
+
+\subsection{Obtención del CRC}
+\label{sub:obtencion}
+
+Para obtener el CRC se ejecuta la máquina de estados finitos explicada en la sección \ref{sec:mef}.
+Se propone el siguiente código:
+
+\begin{lstlisting}[language=Python]
+def buildCRC8(data, table=TABLE) -> int:
+	crc8: int = table[0]
+	indx: int = 0
+	for byte in data:
+		indx = crc8 ^ byte
+		crc8 = table[indx]
+	return crc8
+\end{lstlisting}
+
+En el código, el estado $S_n$ está representada por la variable \emph{indx}, la salida por \emph{crc8} y la entrada por \emph{byte}.
+
+Finalmente se puede verificar el CRC invocando a la máquina de estados en el \emph{payload} y comparando el CRC transmitido.
+Como se muestra en el siguiente código:
+
+\begin{lstlisting}[language=Python]
+def computeCRC8(frame, table=TABLE) -> bool:
+	if len(frame) < 2:
+		return False
+	data: list = frame[0:-1]
+	crc8: str = frame[-1]
+	comp: str = buildCRC8(data, table)
+	return crc8 == comp
+\end{lstlisting}
+
+\subsection{Codificación para microcontroladores}
+\label{sub:langc}
+
+Creación de la tabla:
+
+\begin{lstlisting}[language=C]
+#define TABLE_LENGTH 256
+#define OCTET_MASK 0X000000FF
+
+unsigned char CRC8TABLE[TABLE_LENGTH];
+
+void GenerateTable(void)
+{
+	unsigned char crcValue;
+	unsigned char polynomial = 0x1C;
+	unsigned int i, j;
+	
+	for(i=0; i < TABLE_LENGTH; i++)
+	{
+		crcValue = i;
+		for(j=0; j < 8; j++)
+		{
+			if(crcValue & 0x80) {
+				crcValue = (crcValue << 1);
+				crcValue = crcValue ^ polynomial;
+			}
+			else {
+				crcValue = crcValue << 1;
+			}
+		}
+		CRC8TABLE[i] = crcValue & OCTET_MASK;
+	}
+}
+\end{lstlisting}
+
+Cálculo del CRC:
+
+\begin{lstlisting}[language=C]
+unsigned char buildCRC8(unsigned int* bufferPtr, unsigned int bufferLenght)
+{
+	unsigned int i;
+	unsigned char crcValue = 0x00;
+	unsigned int tableIndex;
+	
+	for(i=0; i < bufferLenght; i++)
+	{
+		tableIndex = crcValue^(bufferPtr[i] & 0xFF);
+		crcValue = CRC8TABLE[tableIndex];
+	}
+	return crcValue;
+}
+
+\end{lstlisting}
+
+\end{document}
