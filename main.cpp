@@ -15,8 +15,16 @@ int main() {
 
   Sarwate crc;
   unsigned char polynomial = 0x1C;
-  unsigned char table[256];
+  // La tabla representa los 256 estados
+  // Cada posición es un resultado posible
+  // de la división de un byte con el
+  // polinomio.
+  unsigned char table[256]; 
   init_sarwate(&crc, polynomial, table);
+  printf("\nTABLE\n");
+  serial_port.write(crc.table, 256);
+  printf("\nPOLYNOMIAL\n");
+  printf("%X", crc.polynomial);
 
   while (true) {
     if (uint32_t num = serial_port.read(serial_buffer, sizeof(serial_buffer))) {
@@ -27,8 +35,9 @@ int main() {
       }
       if (frame_index > MINIMUM_FRAME_SIZE) {
         unsigned char computedCRC = buildCRC8(&crc, frame, (frame_index - 1));
-        //printf("frame CRC: %X\n", frame[frame_index - 1]);
-        //printf("computedCRC: %X\n", computedCRC);
+        printf("\n================================\n");
+        printf("\nframe CRC: %X\n", frame[frame_index - 1]);
+        printf("computedCRC: %X\n", computedCRC);
         if (computedCRC != frame[frame_index - 1]) {
           RED.write(1);
         } else {

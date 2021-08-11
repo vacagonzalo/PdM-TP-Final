@@ -1,25 +1,27 @@
 PdM - TP Final
 ==============
 
+Trabajo final de la materia *Programación de microprocesadores* de la *Especialización en Sistemas Embebidos* de la **Universidad de Buenos Aires**.
+
 Alumno: Gonzalo Nahuel Vaca
 
 # Introducción
 
-Este es el trabajo final de la asignatura *Programación de microprocesadores* de la *Especialización en Sistemas Embebidos* de la **Universidad de Buenos Aires**.
-
 El trabajo es una implementación del algoritmo de Sarwate. Esto incluye:
 
-* Generación de tabla de búsqueda
-* Cálculo de CRC de una trama
+* Generación de tabla de búsqueda.
+* Cálculo de CRC de una trama.
+* Verificación del CRC de la trama recibida.
 
-La principal ventaja del algoritmo es que se puede procesar una trama byte a byte. El método tradicional obliga a utilizar un ciclo de máquina por cada bit de la trama.
+La principal ventaja del algoritmo es que se puede procesar una trama byte a byte.
+El método tradicional obliga a utilizar un ciclo de máquina por cada bit de la trama.
 
 # Requerimientos
 
-* Placa **NUCLEO-F429ZI**
-* Cable USB
-* Entorno **Mbed OS 6 STD**
-* Intérprete de Python3
+* Placa **NUCLEO-F429ZI** (debería correr en cualquier placa).
+* Cable USB.
+* Entorno **Mbed OS 6 STD** (se usa lectura/escritura con buffer tipo POSIX).
+* Intérprete de Python3 (para correr el script de prueba en su ordenador).
 
 # Instrucciones
 
