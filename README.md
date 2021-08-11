@@ -18,7 +18,7 @@ La principal ventaja del algoritmo es que se puede procesar una trama byte a byt
 
 * Placa **NUCLEO-F429ZI**
 * Cable USB
-* Entorno **Mbed**
+* Entorno **Mbed OS 6 STD**
 * Intérprete de Python3
 
 # Instrucciones

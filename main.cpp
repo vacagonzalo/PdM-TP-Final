@@ -1,43 +1,42 @@
-#include "PinNames.h"
 #include "mbed.h"
 #include "modules/crc8/crc8.h"
 
-Serial pc(USBTX, USBRX);
+#define BUFFER_SIZE 0x100
+#define MINIMUM_FRAME_SIZE 9
+
+static BufferedSerial serial_port(USBTX, USBRX);
+static DigitalOut GREEN(LED1);
+static DigitalOut RED(LED3);
 
 int main() {
-  DigitalOut led(LED3);
-  led.write(0);
-  struct Sarwate crc;
+  unsigned char serial_buffer[BUFFER_SIZE] = {0};
+  unsigned char frame[BUFFER_SIZE] = {0};
+  uint32_t frame_index = 0;
+
+  Sarwate crc;
   unsigned char polynomial = 0x1C;
   unsigned char table[256];
   init_sarwate(&crc, polynomial, table);
 
-  pc.printf("\n\n");
-
-  pc.printf("Polynomial: %X\n", crc.polynomial);
-
-  pc.printf("Generated table:\n");
-  for (int i = 0; i < 256; i++) {
-    pc.printf("%X | ", crc.table[i]);
-  }
-  pc.printf("\n");
-
-  char buffer[11];
   while (true) {
-    pc.gets(buffer, 11);
-    unsigned int payload[9];
-    for (int i = 0; i < 9; i++) {
-      payload[i] = (unsigned int)buffer[i];
+    if (uint32_t num = serial_port.read(serial_buffer, sizeof(serial_buffer))) {
+      GREEN = !GREEN;
+      for (uint32_t i = 0; i < num; ++i) {
+        frame[frame_index] = serial_buffer[i];
+        ++frame_index;
+      }
+      if (frame_index > MINIMUM_FRAME_SIZE) {
+        unsigned char computedCRC = buildCRC8(&crc, frame, (frame_index - 1));
+        //printf("frame CRC: %X\n", frame[frame_index - 1]);
+        //printf("computedCRC: %X\n", computedCRC);
+        if (computedCRC != frame[frame_index - 1]) {
+          RED.write(1);
+        } else {
+          RED.write(0);
+        }
+        serial_port.write(frame, frame_index);
+        frame_index = 0;
+      }
     }
-    unsigned char computedCRC = buildCRC8(&crc, payload, 9);
-    // pc.printf("msg: %s | msg crc: 0x%X | cal crc: 0x%X\n", buffer, (unsigned
-    // int)buffer[9], computedCRC);
-    if (computedCRC != (unsigned char)buffer[9]) {
-      led.write(1);
-    } else {
-      led.write(0);
-    }
-    // echo:
-    pc.printf("%s\n", buffer);
   }
 }
