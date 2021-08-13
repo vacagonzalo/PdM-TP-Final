@@ -15,6 +15,15 @@ int main() {
 
     unsigned char* reader;
 
+    // msg for academic purposes
+    printf("polynomial: %X\n", polynomial);
+    printf("TABLE\n");
+    for(uint32_t i = 0; i < sizeof(table); ++i)
+    {
+        printf("%X ", table[i]);
+    }
+    printf("\n");
+    // end of msg
     while (true) {
         if(in_poxisUART(10)) {
             GREEN = !GREEN;
