@@ -1,5 +1,18 @@
+/**
+ * @file crc8.cpp
+ * @author Gonzalo Nahuel Vaca
+ * @date 2021
+ * @brief File containing the implementation of the Sarwate's algorithm.
+ *
+ */
+
 #include "crc8.h"
 
+/**
+ * @brief It calculates the lookup table from the desired polynomial.
+ *
+ * @param[in] crc The structure with the polynomial and table's memory space.
+ */
 void generate_table(Sarwate *crc);
 
 void init_sarwate(Sarwate *crc, unsigned char polynomial,

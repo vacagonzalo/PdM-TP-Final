@@ -24,6 +24,7 @@ int main() {
     }
     printf("\n");
     // end of msg
+    
     while (true) {
         if(in_poxisUART(10)) {
             GREEN = !GREEN;
