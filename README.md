@@ -30,7 +30,7 @@ Adicionalmente, se implementó un módulo para realizar lecturas no bloqueantes 
 * Abrir **Mbed Studio**.
 * Observe que se le indicará que el requerimiento **Mbed-OS** no se cumple.
 * Puede usar el IDE para que descargue/enlace el programa a **Mbed-OS**.
-* Compile para su *Target* y corra el firmware.
+* Compile para su *Target* y corra el firmware.
 
 # Operación
 
