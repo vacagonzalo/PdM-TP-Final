@@ -11,7 +11,6 @@
 
 #include "mbed.h"
 
-
 /**
  * @brief It reports if the UART has the desired number of bytes to be read.
  *

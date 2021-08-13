@@ -8,6 +8,7 @@
 
 #ifndef crc8_h
 #define crc8_h
+
 /**
  * @brief Structure to implement the Sarwate's Algorithm.
  *
