@@ -22,7 +22,7 @@ Adicionalmente, se implementó un módulo para realizar lecturas no bloqueantes 
 
 * Placa **NUCLEO-F429ZI** (debería correr en cualquier placa).
 * Cable USB.
-* Entorno **Mbed OS 6 STD** (se usa lectura/escritura con buffer tipo POSIX).
+* Entorno **Mbed OS 6** (se usa lectura/escritura con buffer tipo POSIX).
 * Intérprete de Python3 (para correr el script de prueba en su ordenador).
 
 # Instalación

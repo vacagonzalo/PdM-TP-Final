@@ -24,11 +24,11 @@ void init_sarwate(Sarwate *crc, unsigned char polynomial,
 }
 
 unsigned char buildCRC8(Sarwate *crc, unsigned char *bufferPtr,
-                        unsigned int bufferLenght)
+                        uint32_t bufferLenght)
 {
-    unsigned int i;
+    uint32_t i = 0;
     unsigned char crcValue = 0x00;
-    unsigned int tableIndex;
+    uint32_t tableIndex = 0;
 
     for (i = 0; i < bufferLenght; ++i) {
         tableIndex = crcValue ^ (bufferPtr[i] & 0xFF);
@@ -39,11 +39,10 @@ unsigned char buildCRC8(Sarwate *crc, unsigned char *bufferPtr,
 
 void generate_table(Sarwate *crc)
 {
-    const unsigned int TABLE_LENGTH = 0X100;
-    const unsigned int OCTET_MASK = 0x000000FF;
+    const uint32_t TABLE_LENGTH = 0X100;
 
-    unsigned char crcValue;
-    unsigned int i, j;
+    unsigned char crcValue = 0x00;
+    uint32_t i, j = 0;
 
     for (i = 0; i < TABLE_LENGTH; ++i)
     {
@@ -57,6 +56,6 @@ void generate_table(Sarwate *crc)
                 crcValue = crcValue << 1;
             }
         }
-        crc->table[i] = crcValue & OCTET_MASK;
+        crc->table[i] = crcValue;
     }
 }
