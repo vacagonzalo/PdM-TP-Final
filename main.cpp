@@ -8,7 +8,7 @@ static DigitalOut RED(LED3);
 int main() {
     Sarwate crc;
     unsigned char polynomial = 0x1C;
-    unsigned char table[256]; 
+    unsigned char table[256] = { 0x00 }; 
     init_sarwate(&crc, polynomial, table);
 
     unsigned char crc_byte = 0x00;
