@@ -13,7 +13,7 @@ int main() {
 
     unsigned char crc_byte = 0x00;
 
-    unsigned char* reader;
+    unsigned char* reader = NULL;
 
     // msg for academic purposes
     printf("polynomial: %X\n", polynomial);
