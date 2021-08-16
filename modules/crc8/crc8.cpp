@@ -29,7 +29,7 @@ unsigned char buildCRC8(Sarwate *crc, unsigned char *bufferPtr,
     uint32_t tableIndex = 0;
 
     for (i = 0; i < bufferLenght; ++i) {
-        tableIndex = crcValue ^ (bufferPtr[i] & 0xFF);
+        tableIndex = crcValue ^ bufferPtr[i];
         crcValue = crc->table[tableIndex];
     }
     return crcValue;
