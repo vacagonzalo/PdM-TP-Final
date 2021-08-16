@@ -19,7 +19,7 @@
  */
 typedef struct {
   unsigned char polynomial;
-  unsigned char *table;
+  unsigned char table[0x100] = { 0 };
 } Sarwate;
 
 /**
@@ -29,7 +29,7 @@ typedef struct {
  * @param[in] polynomial The hexadecimal representation of the coefficients.
  * @param[in] table The memory needed to hold the lookup table. 
  */
-void init_sarwate(Sarwate *crc, unsigned char polynomial, unsigned char *table);
+void init_sarwate(Sarwate *crc, unsigned char polynomial);
 
 /**
  * @brief Construction of a CRC byte from an input frame.

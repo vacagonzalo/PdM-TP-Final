@@ -6,10 +6,9 @@ static DigitalOut GREEN(LED1);
 static DigitalOut RED(LED3);
 
 int main() {
-    Sarwate crc;
     unsigned char polynomial = 0x1C;
-    unsigned char table[256] = { 0x00 }; 
-    init_sarwate(&crc, polynomial, table);
+    Sarwate crc;
+    init_sarwate(&crc, polynomial);
 
     unsigned char crc_byte = 0x00;
 
@@ -18,9 +17,9 @@ int main() {
     // msg for academic purposes
     printf("polynomial: %X\n", polynomial);
     printf("TABLE\n");
-    for(uint32_t i = 0; i < sizeof(table); ++i)
+    for(uint32_t i = 0; i < sizeof(crc.table); ++i)
     {
-        printf("%X ", table[i]);
+        printf("%X ", crc.table[i]);
     }
     printf("\n");
     // end of msg

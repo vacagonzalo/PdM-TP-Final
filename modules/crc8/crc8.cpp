@@ -15,11 +15,9 @@
  */
 void generate_table(Sarwate *crc);
 
-void init_sarwate(Sarwate *crc, unsigned char polynomial,
-                  unsigned char *table)
+void init_sarwate(Sarwate *crc, unsigned char polynomial)
 {
     crc->polynomial = polynomial;
-    crc->table = table;
     generate_table(crc);
 }
 
